@@ -8,7 +8,34 @@
 
 #include <iostream>
 
-int main() {
+#include "Socket.hpp"
+
+int main() 
+{
+    Socket socket;
+    unsigned short port = 1337;
+
+    if(!socket.open(port)){
+        std::cout << "Failed to make socket" << std::endl;
+        return 1;
+    }
+
+    char message[] = "Hello, World!";
+    socket.send(Address(127,0,0,1, port), message, sizeof(message));
+    
+    while(true){
+        Address sender;
+        char buffer[256];
+        int bytesRead = socket.receive(sender, buffer, sizeof(buffer));
+
+        if(bytesRead <= 0){
+        //    std::cout << "Didn't receive message" << std::endl;
+        } else {
+            std::cout << "Received: " << std::string(buffer, bytesRead) 
+                      << " from localhost" << std::endl;
+            break;
+        }
+    }
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

@@ -1,4 +1,4 @@
-add_executable(IslandEngine main.cpp)
+add_executable(IslandEngine main.cpp Socket.cpp)
 
 find_package(Vulkan REQUIRED)
 
