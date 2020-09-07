@@ -24,6 +24,10 @@ private:
     unsigned short port;
 };
 
+/*
+ * a barebones cross-platform udp socket 
+ *
+ */
 class Socket {
 public:
     static bool initialize();
