@@ -12,6 +12,8 @@
 
 int main() 
 {
+    Socket::initialize();
+
     Socket socket;
     unsigned short port = 1337;
 
@@ -36,6 +38,11 @@ int main()
             break;
         }
     }
+    
+    socket.close();
+
+    Socket::destroy();
+
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

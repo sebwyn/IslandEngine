@@ -88,8 +88,7 @@ bool Socket::send(const Address& destination, void* data, int size)
     address.sin_addr.s_addr = htonl(destination.getAddress());
     address.sin_port = htons(destination.getPort());
     int sentBytes = 
-        sendto(m_handle, data, size, 0, (sockaddr*)&address, sizeof(address));
-
+        sendto(m_handle, (const char*)data, size, 0, (sockaddr*)&address, sizeof(address)); 
     if(sentBytes != size){
         std::cout << "Failed to send packet!" << std::endl;
         return false;
@@ -100,11 +99,11 @@ bool Socket::send(const Address& destination, void* data, int size)
 
 int Socket::receive(const Address& source, void* data, int size)
 {
-    #ifdef __WIN32
+    #ifdef _WIN32
         typedef int socklen_t;
     #endif
 
     sockaddr_in from;
     socklen_t fromLength = sizeof(from);
-    return recvfrom(m_handle, data, size, 0, (sockaddr*)&from, &fromLength);
+    return recvfrom(m_handle, (char*)data, size, 0, (sockaddr*)&from, &fromLength);
 }
