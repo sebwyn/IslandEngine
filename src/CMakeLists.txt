@@ -5,6 +5,9 @@ add_executable(IslandEngine
     platform/vulkan/Renderer.cpp
 )
 
+set(PROJECT_ASSET_DIR ${PROJECT_SOURCE_DIR}/assets)
+configure_file(platform/vulkan/Renderer.cpp.in ${PROJECT_SOURCE_DIR}/src/platform/vulkan/Renderer.cpp)
+
 find_package(Vulkan REQUIRED)
 
 set(libs glfw ${Vulkan_LIBRARIES} glm EnTT)

@@ -23,6 +23,10 @@ public:
 
    static void draw();
 private:
+    static std::string m_vertPath;
+    static std::string m_fragPath;
+
+   //Lots of vulkan shit I barely understand
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
