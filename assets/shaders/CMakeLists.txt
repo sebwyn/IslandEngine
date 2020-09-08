@@ -1,18 +1,16 @@
 #build the shaders here
-file(GLOB_RECURSE KERNELS *.vert *.frag)
-#message(${KERNELS})
-
+file(GLOB_RECURSE KERNELS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.vert *.frag)
 #requires glslc to be in path
 
 foreach(KERNEL ${KERNELS})
-    add_custom_command(OUTPUT ${KERNEL}.spv
-        COMMAND glslc ${KERNEL} -g -o ${KERNEL}.spv
-        DEPENDS ${KERNEL}
-        COMMENT "Rebuilding ${KERNEL}.spv" )
-    message(STATUS "Generating build commands for ${KERNEL}.spv")
-    list(APPEND COMPILED_KERNELS ${KERNEL}.spv)
+    set(K ${CMAKE_CURRENT_SOURCE_DIR}/${KERNEL})
+    set(COMPILED_KERNEL ${CMAKE_CURRENT_BINARY_DIR}/${KERNEL}.spv)
+    add_custom_command(OUTPUT ${COMPILED_KERNEL}
+        COMMAND glslc ${K} -g -o ${COMPILED_KERNEL}
+        DEPENDS ${K}
+        COMMENT "Rebuilding ${COMPILED_KERNEL}" )
+    message(STATUS "Generating build commands for ${COMPILED_KERNEL}")
+    list(APPEND COMPILED_KERNELS ${COMPILED_KERNEL})
 endforeach()
 
 add_custom_target(shaders ALL DEPENDS ${KERNELS} ${COMPILED_KERNELS})
-
-set(compiled_shaders ${COMPILED_KERNELS} PARENT_SCOPE)
