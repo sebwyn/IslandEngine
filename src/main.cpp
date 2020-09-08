@@ -8,31 +8,21 @@
 
 #include <iostream>
 
-#include "Socket.hpp"
+#include "platform/window/Window.hpp"
+#include "platform/vulkan/Renderer.hpp"
 
 int main() 
 {
-    glfwInit();
+    int width = 800;
+    int height = 600;
+    Window myWindow(width, height, "A Vulkan window");
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
-
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-    std::cout << extensionCount << " extensions supported\n";
-
-    glm::mat4 matrix;
-    glm::vec4 vec;
-    auto test = matrix * vec;
-
-    while(!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+    Renderer::init(myWindow.getGLFWWindow(), width, height);
+    
+    while(!myWindow.shouldClose()){
+        Renderer::draw();
+        myWindow.update();
     }
 
-    glfwDestroyWindow(window);
-
-    glfwTerminate();
-
-    return 0;
+    Renderer::destroy();
 }

@@ -1,4 +1,9 @@
-add_executable(IslandEngine main.cpp Socket.cpp)
+add_executable(IslandEngine 
+    main.cpp 
+    Socket.cpp 
+    platform/window/Window.cpp 
+    platform/vulkan/Renderer.cpp
+)
 
 find_package(Vulkan REQUIRED)
 
