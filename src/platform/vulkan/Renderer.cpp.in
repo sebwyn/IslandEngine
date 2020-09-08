@@ -7,8 +7,8 @@
 #include <set>
 #include <fstream>
 
-std::string Renderer::m_vertPath = "@PROJECT_ASSET_DIR@/shaders/vert.spv";
-std::string Renderer::m_fragPath = "@PROJECT_ASSET_DIR@/shaders/frag.spv";
+std::string Renderer::m_vertPath = "@PROJECT_ASSET_DIR@/shaders/vertex.vert.spv";
+std::string Renderer::m_fragPath = "@PROJECT_ASSET_DIR@/shaders/fragment.frag.spv";
 
 GLFWwindow* Renderer::m_glfwWindow;
 int Renderer::initWidth, Renderer::initHeight;
