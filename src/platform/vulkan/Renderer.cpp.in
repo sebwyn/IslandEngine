@@ -497,14 +497,14 @@ void Renderer::createGraphicsPipeline()
     colorBlending.blendConstants[3] = 0.0f; // Optional
 
     //not using any dynamic state right now
-    VkDynamicState dynamicStates[] = {
+    /*VkDynamicState dynamicStates[] = {
         //VK_DYNAMIC_STATE_VIEWPORT,
         //VK_DYNAMIC_STATE_LINE_WIDTH
-    };
+    };*/
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicState.dynamicStateCount = 0;
-    dynamicState.pDynamicStates = dynamicStates;
+    dynamicState.pDynamicStates = nullptr;
 
     //for uniforms
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
