@@ -4,29 +4,70 @@
 #include <GLFW/glfw3.h>
 
 #include <vulkan/vulkan.h>
+#include <glm/glm.hpp>
 
 #include <fstream>
 #include <string>
 #include <optional>
 #include <vector>
+#include <array>
 
 /* TODO: think about how to organize all of the init vulkan code
  * TODO: add our own callback for vulkan validation errors
- * TODO: think about device selection
+ * TODO: use the custom IslandEngine event system for resize handling instead of
+ * direct glfw calls
  *
  * this class also assumes that glfw is being used
  */
 class Renderer {
 public:
-   static void init(GLFWwindow* window, int winWidth, int winHeight); 
-   static void destroy();
+    static void init(GLFWwindow* window); 
+    static void destroy();
 
-   static void draw();
+    static void draw();
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 private:
+
+    struct Vertex {
+        glm::vec2 pos;
+        glm::vec3 color;
+
+        static VkVertexInputBindingDescription getBindindDescription()
+        {
+            VkVertexInputBindingDescription bindingDescription;
+
+            bindingDescription.binding = 0;
+            bindingDescription.stride = sizeof(Vertex);
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            return bindingDescription;
+        }
+
+        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+            attributeDescriptions[1].binding = 0;
+            attributeDescriptions[1].location = 1;
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+            return attributeDescriptions;
+        }
+    };
+
+    static std::vector<Vertex> m_vertices;
+
+    //Lots of vulkan shit I barely understand
     static std::string m_vertPath;
     static std::string m_fragPath;
 
-   //Lots of vulkan shit I barely understand
+    static int m_maxFramesInFlight;
+
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
@@ -42,9 +83,12 @@ private:
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR> presentModes;
     };
+
+
     //vulkan initialization
     static void initVulkan();
     static void destroyVulkan();
+    static void destroySwapChain();
 
     static bool checkValidationLayerSupport();
 
@@ -60,8 +104,11 @@ private:
     static void createGraphicsPipeline();
     static void createFramebuffers();
     static void createCommandPool();
+    static void createVertexBuffer();
     static void createCommandBuffers();
-    static void createSemaphores();
+    static void createSyncObjects();
+
+    static void recreateSwapChain();
 
     static int rateDeviceSuitability(VkPhysicalDevice device);
     static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
@@ -72,10 +119,11 @@ private:
     static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
+    static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
     static bool enableValidationLayers;
 
     static GLFWwindow* m_glfwWindow;
-    static int initWidth, initHeight;
 
     static std::vector<const char*> m_validationLayers, m_deviceExtensions;
     static VkInstance m_instance;
@@ -100,7 +148,14 @@ private:
     static std::vector<VkCommandBuffer> m_commandBuffers;
     static VkQueue m_graphicsQueue, m_presentQueue;
 
-    static VkSemaphore m_imageAvailableSemaphore, m_renderFinishedSemaphore;
+    static std::vector<VkSemaphore> m_imageAvailableSemaphores, m_renderFinishedSemaphores;
+    static std::vector<VkFence> m_inFlightFences, m_inFlightImages;
+    static size_t m_currentFrame; 
+
+    static bool m_framebufferResized;
+
+    static VkBuffer m_vertexBuffer;
+    static VkDeviceMemory m_vertexBufferMemory;
 
     static std::vector<char> readFile(const std::string& fileName)
     {

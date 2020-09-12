@@ -17,7 +17,8 @@ int main()
     int height = 600;
     Window myWindow(width, height, "A Vulkan window");
 
-    Renderer::init(myWindow.getGLFWWindow(), width, height);
+    Renderer::init(myWindow.getGLFWWindow());
+    glfwSetFramebufferSizeCallback(myWindow.getGLFWWindow(), Renderer::framebufferResizeCallback);
     
     while(!myWindow.shouldClose()){
         Renderer::draw();
