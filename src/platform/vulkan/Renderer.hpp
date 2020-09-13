@@ -104,10 +104,12 @@ private:
     static void createGraphicsPipeline();
     static void createFramebuffers();
     static void createCommandPool();
-    static void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& memory);
     static void createVertexBuffer();
     static void createCommandBuffers();
     static void createSyncObjects();
+
+    static void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& memory);
+    static void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
     static void recreateSwapChain();
 
