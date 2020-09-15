@@ -61,6 +61,7 @@ private:
     };
 
     static std::vector<Vertex> m_vertices;
+    static std::vector<uint16_t> m_indices;
 
     //Lots of vulkan shit I barely understand
     static std::string m_vertPath;
@@ -105,6 +106,7 @@ private:
     static void createFramebuffers();
     static void createCommandPool();
     static void createVertexBuffer();
+    static void createIndexBuffer();
     static void createCommandBuffers();
     static void createSyncObjects();
 
@@ -159,6 +161,8 @@ private:
 
     static VkBuffer m_vertexBuffer;
     static VkDeviceMemory m_vertexBufferMemory;
+    static VkBuffer m_indexBuffer;
+    static VkDeviceMemory m_indexBufferMemory;
 
     static std::vector<char> readFile(const std::string& fileName)
     {
