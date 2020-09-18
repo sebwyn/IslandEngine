@@ -27,6 +27,11 @@ public:
     static void draw();
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 private:
+    struct UniformBufferObject {
+        glm::mat4 model;
+        glm::mat4 view;
+        glm::mat4 proj;
+    };
 
     struct Vertex {
         glm::vec2 pos;
@@ -85,6 +90,7 @@ private:
         std::vector<VkPresentModeKHR> presentModes;
     };
 
+    static void updateUniformBuffers(uint32_t currentImage);
 
     //vulkan initialization
     static void initVulkan();
@@ -102,11 +108,15 @@ private:
     static void createImageViews();
     static VkShaderModule createShaderModule(const std::vector<char>& code);
     static void createRenderPass();
+    static void createDescriptorSetLayout();
     static void createGraphicsPipeline();
     static void createFramebuffers();
     static void createCommandPool();
     static void createVertexBuffer();
     static void createIndexBuffer();
+    static void createUniformBuffers();
+    static void createDescriptorPool();
+    static void createDescriptorSets();
     static void createCommandBuffers();
     static void createSyncObjects();
 
@@ -146,6 +156,7 @@ private:
     static std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
     static VkRenderPass m_renderPass;
+    static VkDescriptorSetLayout m_descriptorSetLayout;
     static VkPipelineLayout m_pipelineLayout;
     static VkPipeline m_graphicsPipeline;
 
@@ -163,6 +174,12 @@ private:
     static VkDeviceMemory m_vertexBufferMemory;
     static VkBuffer m_indexBuffer;
     static VkDeviceMemory m_indexBufferMemory;
+
+    static std::vector<VkBuffer> m_uniformBuffers;
+    static std::vector<VkDeviceMemory> m_uniformBuffersMemory;
+
+    static VkDescriptorPool m_descriptorPool; 
+    static std::vector<VkDescriptorSet> m_descriptorSets;
 
     static std::vector<char> readFile(const std::string& fileName)
     {
