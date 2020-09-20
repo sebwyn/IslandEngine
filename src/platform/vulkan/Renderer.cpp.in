@@ -202,16 +202,26 @@ void Renderer::initVulkan()
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
+
+    //presentation
     createSwapChain();
     createImageViews();
+
+    //rendering/pipeline stuff
     createRenderPass();
     createDescriptorSetLayout();
     createGraphicsPipeline();
     createFramebuffers();
+    
+    //needed for rendering and transfer operations
     createCommandPool();
+
+    //data for rendering
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
+
+    //stuff for actually passing uniforms and rendering commands
     createDescriptorPool();
     createDescriptorSets();
     createCommandBuffers();
