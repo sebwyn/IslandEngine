@@ -35,7 +35,7 @@ private:
     };
 
     struct Vertex {
-        glm::vec2 pos;
+        glm::vec3 pos;
         glm::vec3 color;
         glm::vec2 texCoord;
 
@@ -54,7 +54,7 @@ private:
 
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
-            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
             attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
             attributeDescriptions[1].binding = 0;
@@ -64,7 +64,7 @@ private:
 
             attributeDescriptions[2].binding = 0;
             attributeDescriptions[2].location = 2;
-            attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
             attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
 
             return attributeDescriptions;
@@ -119,6 +119,7 @@ private:
     static void createGraphicsPipeline();
     static void createFramebuffers();
     static void createCommandPool();
+    static void createDepthResources();
 
     static void createTextureImage();
     static void createTextureImageView();
@@ -142,7 +143,7 @@ private:
     static void createImage(uint32_t width, uint32_t height, VkFormat format, 
         VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags 
         properties, VkImage& image, VkDeviceMemory& imageMemory);
-    static VkImageView createImageView(VkImage image, VkFormat format);
+    static VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
     static void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
@@ -163,6 +164,12 @@ private:
     static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
     static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+    static VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features); 
+    static VkFormat findDepthFormat();
+    static bool hasStencilComponent(VkFormat format) {
+        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
 
     static bool enableValidationLayers;
 
@@ -195,6 +202,10 @@ private:
     static std::vector<VkSemaphore> m_imageAvailableSemaphores, m_renderFinishedSemaphores;
     static std::vector<VkFence> m_inFlightFences, m_inFlightImages;
     static size_t m_currentFrame; 
+
+    static VkImage m_depthImage;
+    static VkDeviceMemory m_depthImageMemory;
+    static VkImageView m_depthImageView; 
 
     static bool m_framebufferResized;
 
