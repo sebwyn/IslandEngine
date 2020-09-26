@@ -12,7 +12,8 @@
 #include <vector>
 #include <array>
 
-/* TODO: think about how to organize all of the init vulkan code
+/* TODO: actually make texture and buffer classes 
+ * TODO: think about how to organize all of the init vulkan code
  * TODO: add our own callback for vulkan validation errors
  * TODO: use the custom IslandEngine event system for resize handling instead of
  * direct glfw calls
@@ -36,11 +37,11 @@ private:
     struct Vertex {
         glm::vec2 pos;
         glm::vec3 color;
+        glm::vec2 texCoord;
 
         static VkVertexInputBindingDescription getBindindDescription()
         {
             VkVertexInputBindingDescription bindingDescription;
-
             bindingDescription.binding = 0;
             bindingDescription.stride = sizeof(Vertex);
             bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -48,8 +49,8 @@ private:
             return bindingDescription;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
-            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+        static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
+            std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
@@ -61,6 +62,11 @@ private:
             attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
             attributeDescriptions[1].offset = offsetof(Vertex, color);
 
+            attributeDescriptions[2].binding = 0;
+            attributeDescriptions[2].location = 2;
+            attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+
             return attributeDescriptions;
         }
     };
@@ -69,6 +75,7 @@ private:
     static std::vector<uint16_t> m_indices;
 
     //Lots of vulkan shit I barely understand
+    static std::string m_texturePath;
     static std::string m_vertPath;
     static std::string m_fragPath;
 
@@ -112,16 +119,37 @@ private:
     static void createGraphicsPipeline();
     static void createFramebuffers();
     static void createCommandPool();
+
+    static void createTextureImage();
+    static void createTextureImageView();
+    static void createTextureSampler();
+
     static void createVertexBuffer();
     static void createIndexBuffer();
+
     static void createUniformBuffers();
     static void createDescriptorPool();
     static void createDescriptorSets();
+
     static void createCommandBuffers();
     static void createSyncObjects();
 
+
+    //TODO: make this asynchronous
+    static VkCommandBuffer beginSingleTimeCommands(); 
+    static void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+    static void createImage(uint32_t width, uint32_t height, VkFormat format, 
+        VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags 
+        properties, VkImage& image, VkDeviceMemory& imageMemory);
+    static VkImageView createImageView(VkImage image, VkFormat format);
+
+    static void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
     static void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& memory);
     static void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+    static void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
     static void recreateSwapChain();
 
@@ -169,6 +197,11 @@ private:
     static size_t m_currentFrame; 
 
     static bool m_framebufferResized;
+
+    static VkImage m_textureImage;
+    static VkDeviceMemory m_textureImageMemory;
+    static VkImageView m_textureImageView;
+    static VkSampler m_textureSampler;
 
     static VkBuffer m_vertexBuffer;
     static VkDeviceMemory m_vertexBufferMemory;
