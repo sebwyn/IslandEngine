@@ -9,7 +9,7 @@ configure_file(platform/vulkan/Renderer.cpp.in ${PROJECT_SOURCE_DIR}/src/platfor
 
 find_package(Vulkan REQUIRED)
 
-set(libs glfw ${Vulkan_LIBRARIES} glm EnTT stb)
+set(libs glfw ${Vulkan_LIBRARIES} glm EnTT stb tinyobjloader)
 
 if(WIN32)
     set(libs ${libs} wsock32)

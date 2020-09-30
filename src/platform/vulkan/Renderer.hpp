@@ -6,11 +6,16 @@
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
+#include <entt/entt.hpp>
 #include <fstream>
 #include <string>
 #include <optional>
 #include <vector>
 #include <array>
+#include <unordered_map>
 
 /* TODO: actually make texture and buffer classes 
  * TODO: think about how to organize all of the init vulkan code
@@ -22,22 +27,21 @@
  */
 class Renderer {
 public:
-    static void init(GLFWwindow* window); 
+    static void init(entt::registry* scene, GLFWwindow* window); 
     static void destroy();
 
     static void draw();
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
-private:
-    struct UniformBufferObject {
-        glm::mat4 model;
-        glm::mat4 view;
-        glm::mat4 proj;
-    };
 
     struct Vertex {
         glm::vec3 pos;
         glm::vec3 color;
         glm::vec2 texCoord;
+
+        bool operator==(const Vertex& other) const
+        {
+            return pos == other.pos && color == other.color && texCoord == other.texCoord;
+        }
 
         static VkVertexInputBindingDescription getBindindDescription()
         {
@@ -71,10 +75,34 @@ private:
         }
     };
 
-    static std::vector<Vertex> m_vertices;
-    static std::vector<uint16_t> m_indices;
+    static void attachModel(entt::entity& entity, std::string modelPath);
+
+    struct Renderable {
+        std::string model;
+    };
+private:
+
+    static entt::registry* m_scene;
+
+    static std::string m_modelDir;
+    static std::string m_textureDir;
+
+    struct Model {
+        VkBuffer indexBuffer, vertexBuffer;
+        VkDeviceMemory indexBufferMemory, vertexBufferMemory;
+        uint32_t numIndices;
+    };
+    
+    static std::unordered_map<std::string, Model> m_models;
+
+    struct UniformBufferObject {
+        glm::mat4 model;
+        glm::mat4 view;
+        glm::mat4 proj;
+    };
 
     //Lots of vulkan shit I barely understand
+    static std::string m_modelPath;
     static std::string m_texturePath;
     static std::string m_vertPath;
     static std::string m_fragPath;
@@ -97,6 +125,7 @@ private:
         std::vector<VkPresentModeKHR> presentModes;
     };
 
+    static void recordCommandBuffer(uint32_t currentImage);
     static void updateUniformBuffers(uint32_t currentImage);
 
     //vulkan initialization
@@ -120,13 +149,14 @@ private:
     static void createFramebuffers();
     static void createCommandPool();
     static void createDepthResources();
-
-    static void createTextureImage();
-    static void createTextureImageView();
     static void createTextureSampler();
 
-    static void createVertexBuffer();
-    static void createIndexBuffer();
+    static void loadTextureImage(std::string texture, VkImage& image, VkDeviceMemory& imageMemory);
+    static void createTextureImageView(VkImage& image, VkImageView& view);
+
+    static void loadModel(std::string modelName, uint32_t& numIndices, VkBuffer& indexBuffer, VkDeviceMemory& indexBufferMemory, VkBuffer& vertexBuffer, VkDeviceMemory& vertexBufferMemory);
+    static void createVertexBuffer(const std::vector<Vertex>& vertices, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+    static void createIndexBuffer(const std::vector<uint32_t>& indices, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
     static void createUniformBuffers();
     static void createDescriptorPool();
@@ -207,17 +237,9 @@ private:
     static VkDeviceMemory m_depthImageMemory;
     static VkImageView m_depthImageView; 
 
-    static bool m_framebufferResized;
-
-    static VkImage m_textureImage;
-    static VkDeviceMemory m_textureImageMemory;
-    static VkImageView m_textureImageView;
     static VkSampler m_textureSampler;
 
-    static VkBuffer m_vertexBuffer;
-    static VkDeviceMemory m_vertexBufferMemory;
-    static VkBuffer m_indexBuffer;
-    static VkDeviceMemory m_indexBufferMemory;
+    static bool m_framebufferResized;
 
     static std::vector<VkBuffer> m_uniformBuffers;
     static std::vector<VkDeviceMemory> m_uniformBuffersMemory;
@@ -243,3 +265,14 @@ private:
         return buffer;
     }
 };
+
+
+namespace std {
+    template<> struct hash<Renderer::Vertex> {
+        size_t operator()(Renderer::Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^
+                   (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+                   (hash<glm::vec2>()(vertex.texCoord) << 1);
+        }
+    };
+} 

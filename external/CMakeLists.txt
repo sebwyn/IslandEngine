@@ -9,3 +9,7 @@ add_subdirectory(glfw)
 #add the stb file that we want to includes
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE stb)
+
+#add the tinyobjloader file that we want to includes
+add_library(tinyobjloader INTERFACE)
+target_include_directories(tinyobjloader INTERFACE tinyobjloader)

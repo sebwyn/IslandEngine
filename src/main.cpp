@@ -6,6 +6,8 @@
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
+#include <entt/entt.hpp>
+
 #include <iostream>
 
 #include "platform/window/Window.hpp"
@@ -17,8 +19,13 @@ int main()
     int height = 600;
     Window myWindow(width, height, "A Vulkan window");
 
-    Renderer::init(myWindow.getGLFWWindow());
+    entt::registry scene; 
+
+    Renderer::init(&scene, myWindow.getGLFWWindow());
     glfwSetFramebufferSizeCallback(myWindow.getGLFWWindow(), Renderer::framebufferResizeCallback);
+
+    entt::entity room = scene.create(); 
+    Renderer::attachModel(room, "viking_room.obj");
     
     while(!myWindow.shouldClose()){
         Renderer::draw();
